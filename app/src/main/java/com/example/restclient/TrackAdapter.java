@@ -1,10 +1,14 @@
 package com.example.restclient;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,7 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import service.Track;
-import com.example.restclient.MainActivity;
+
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> {
 
@@ -22,7 +27,9 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView RVtextView;
-        public Button RVbutton;
+        public Button ModButton;
+        public Button DelButton;
+        public View view;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -32,7 +39,9 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
             super(itemView);
 
             RVtextView = itemView.findViewById(R.id.RVtextView);
-            RVbutton = itemView.findViewById(R.id.RVbutton);
+            ModButton = itemView.findViewById(R.id.ModifyButton);
+            DelButton = itemView.findViewById(R.id.DeleteButton);
+            view=itemView;
         }
 
     }
@@ -62,19 +71,28 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
     // Involves populating data into the item through holder
     @Override
-    public void onBindViewHolder(TrackAdapter.ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(final TrackAdapter.ViewHolder viewHolder, final int position) {
         // Get the data model based on position
         final Track track = mTracks.get(position);
 
         // Set item views based on your views and data model
         TextView textView = viewHolder.RVtextView;
         textView.setText(track.getTitle()+" | "+track.getSinger());
-        Button button = viewHolder.RVbutton;
-        button.setText("Delete");
+        Button mbutton = viewHolder.ModButton;
+        mbutton.setText("Edit");
+        Button delbutton = viewHolder.DelButton;
+        delbutton.setText("Delete");
 
+        //To edit tracks
+        mbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MainActivity().showEditForm(v,track);
+            }
+        });
 
         //To delete tracks
-        button.setOnClickListener(new View.OnClickListener() {
+        delbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteTrack(position);

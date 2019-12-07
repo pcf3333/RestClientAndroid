@@ -1,7 +1,9 @@
 package com.example.restclient;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -15,9 +17,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.util.List;
@@ -34,16 +43,17 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     List<Track> trackList;
     TrackAdapter adapter;
-
+    static LayoutInflater inflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        context=this;
+        inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        this.context=this;
     }
+
 
     //Function to clear teh tracks from the adapter
     public void ClearTracks(View view){
@@ -94,16 +104,15 @@ public class MainActivity extends AppCompatActivity {
         TracksService ts = TracksService.retrofit.create(TracksService.class);
         Call<ResponseBody> call = ts.deleteTrack(id);
 
-
        call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                errorsTV.setText("Track has been deleted");
+                //errorsTV.setText("Track has been deleted");
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-  //              errorsTV.setText("Something went wrong: " + t.getMessage());
+                //errorsTV.setText("Something went wrong: " + t.getMessage());
             }
         });
     }
@@ -139,5 +148,80 @@ public class MainActivity extends AppCompatActivity {
             errorTV.setText("Fill both data items");
         }
     }
+
+    public void showEditForm(View view, final Track track){
+        // inflate the layout of the popup window
+        View popupView = inflater.inflate(R.layout.editform, null);
+
+        // create the popup window
+        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true; // lets taps outside the popup also dismiss it
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        final TextInputLayout name=popupView.findViewById(R.id.TVname);
+        final TextInputLayout singer=popupView.findViewById(R.id.TVauthor);
+
+        name.getEditText().setText(track.getTitle());
+        singer.getEditText().setText(track.getSinger());
+
+        // show the popup window
+        // which view you pass in doesn't matter, it is only used for the window tolken
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        //boton para cerrar
+        Button discBTN = popupView.findViewById(R.id.discardButton);
+        discBTN.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+
+        });
+
+        //boton para guardar
+        Button saveBTN = popupView.findViewById(R.id.saveButton);
+        saveBTN.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(final View v) {
+                if (!name.getEditText().getText().toString().equals("") && !singer.getEditText().getText().toString().equals("")){
+                    TracksService ts = TracksService.retrofit.create(TracksService.class);
+                    track.setTitle(name.getEditText().getText().toString());
+                    track.setSinger(singer.getEditText().getText().toString());
+                    Call<Track> call = ts.updateTrack(track);
+                    call.enqueue(new Callback<Track>() {
+                        @Override
+                        public void onResponse(Call<Track> call, Response<Track> response) {
+                            //errorTV.setText("Track has been updated");
+                        }
+
+                        @Override
+                        public void onFailure(Call<Track> call, Throwable t) {
+                            //errorTV.setText("Something went wrong: " + t.getMessage());
+                        }
+                    });
+
+                    popupWindow.dismiss();
+                }
+                else{
+                    AlertDialog alertDialog = new AlertDialog.Builder(v.getContext()).create();
+                    alertDialog.setTitle("Alert");
+                    alertDialog.setMessage("Make Sure all the fields are correct");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+
+                }
+            }
+
+        });
+    }
+
 
 }

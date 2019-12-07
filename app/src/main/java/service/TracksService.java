@@ -11,13 +11,14 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface TracksService {
 
     //EL builder
     public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://192.168.1.69:8080/")
+            .baseUrl("http://192.168.1.17:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
@@ -31,4 +32,7 @@ public interface TracksService {
 
     @POST("dsaApp/tracks/")
     Call<Track> addTrack(@Body Track track);
+
+    @PUT("dsaApp/tracks/")
+    Call<Track> updateTrack(@Body Track track);
 }

@@ -15,11 +15,20 @@
         android:layout_weight="1" />
 
     <Button
-        android:id="@+id/RVbutton"
+        android:id="@+id/ModifyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:textSize="10sp"
-        />
+        android:textSize="10sp" />
+
+    <Button
+        android:id="@+id/DeleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textSize="10sp" />
 </LinearLayout>
